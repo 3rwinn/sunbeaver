@@ -35,10 +35,18 @@ function EditorLayout() {
   }, [actions]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 shadow-lg">
-        <h1 className="text-2xl font-bold">TikTok Slideshow Creator</h1>
-        <p className="text-sm opacity-90">Create stunning 9:16 slideshows for TikTok</p>
+    <div className="h-screen flex flex-col bg-background">
+      <header className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white px-6 py-4 shadow-md">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">TikTok Slideshow Creator</h1>
+            <p className="text-sm opacity-90 font-medium">Create stunning 9:16 vertical slideshows</p>
+          </div>
+          <div className="text-xs opacity-75 text-right">
+            <p>Keyboard Shortcuts</p>
+            <p>Undo: Ctrl/Cmd+Z | Redo: Ctrl/Cmd+Shift+Z</p>
+          </div>
+        </div>
       </header>
       <Toolbar />
       <div className="flex-1 flex overflow-hidden">
@@ -46,9 +54,6 @@ function EditorLayout() {
         <CanvasEditor />
         <PropertiesPanel />
       </div>
-      <footer className="bg-gray-800 text-white text-center py-2 text-sm">
-        <p>Use Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z to redo</p>
-      </footer>
     </div>
   );
 }

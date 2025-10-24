@@ -5,19 +5,23 @@ import type { TextLayer, ImageLayer } from '../types';
 import { loadImageFile, downloadJSON, loadJSONFile, exportSlideAsImage } from '../utils/export';
 import { getAllTemplates, applyTemplate, saveTemplate } from '../utils/templates';
 import {
-  FiType,
-  FiImage,
-  FiDownload,
-  FiSave,
-  FiFolder,
-  FiLayers,
-  FiChevronUp,
-  FiChevronDown,
-  FiArrowUp,
-  FiArrowDown,
-  FiTrash2,
-} from 'react-icons/fi';
+  Type,
+  Image as ImageIcon,
+  Download,
+  Save,
+  FolderOpen,
+  Layers,
+  ChevronUp,
+  ChevronDown,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+  Undo2,
+  Redo2,
+} from 'lucide-react';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from './CanvasEditor';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 export function Toolbar() {
   const { state, actions } = useEditor();
@@ -120,98 +124,75 @@ export function Toolbar() {
   const templates = getAllTemplates();
 
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="bg-card border-b border-border">
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-2">
-          <button
-            onClick={addTextLayer}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
-            title="Add Text"
-          >
-            <FiType size={18} />
+          <Button onClick={addTextLayer} variant="outline" size="sm" title="Add Text">
+            <Type className="h-4 w-4" />
             Text
-          </button>
-          <button
-            onClick={addImageLayer}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
-            title="Add Image"
-          >
-            <FiImage size={18} />
+          </Button>
+          <Button onClick={addImageLayer} variant="outline" size="sm" title="Add Image">
+            <ImageIcon className="h-4 w-4" />
             Image
-          </button>
-          <div className="w-px h-6 bg-gray-300 mx-2" />
-          <button
+          </Button>
+          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Button
             onClick={() => setShowTemplates(!showTemplates)}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
+            variant="outline"
+            size="sm"
             title="Templates"
           >
-            <FiLayers size={18} />
+            <Layers className="h-4 w-4" />
             Templates
-          </button>
-          <button
-            onClick={saveAsTemplate}
-            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
-            title="Save as Template"
-          >
+          </Button>
+          <Button onClick={saveAsTemplate} variant="outline" size="sm" title="Save as Template">
             Save Template
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={actions.undo}
             disabled={state.historyIndex <= 0}
-            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm font-medium"
+            variant="outline"
+            size="sm"
             title="Undo"
           >
+            <Undo2 className="h-4 w-4" />
             Undo
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={actions.redo}
             disabled={state.historyIndex >= state.history.length - 1}
-            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm font-medium"
+            variant="outline"
+            size="sm"
             title="Redo"
           >
+            <Redo2 className="h-4 w-4" />
             Redo
-          </button>
-          <div className="w-px h-6 bg-gray-300 mx-2" />
-          <button
-            onClick={loadProject}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
-            title="Load Project"
-          >
-            <FiFolder size={18} />
+          </Button>
+          <Separator orientation="vertical" className="h-6 mx-2" />
+          <Button onClick={loadProject} variant="outline" size="sm" title="Load Project">
+            <FolderOpen className="h-4 w-4" />
             Load
-          </button>
-          <button
-            onClick={saveProject}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
-            title="Save Project"
-          >
-            <FiSave size={18} />
+          </Button>
+          <Button onClick={saveProject} variant="outline" size="sm" title="Save Project">
+            <Save className="h-4 w-4" />
             Save
-          </button>
-          <button
-            onClick={exportCurrentSlide}
-            className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-medium"
-            title="Export Current Slide"
-          >
-            <FiDownload size={18} />
+          </Button>
+          <Button onClick={exportCurrentSlide} variant="default" size="sm" title="Export Current Slide">
+            <Download className="h-4 w-4" />
             Export Slide
-          </button>
-          <button
-            onClick={exportAllSlides}
-            className="flex items-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium"
-            title="Export All Slides"
-          >
-            <FiDownload size={18} />
+          </Button>
+          <Button onClick={exportAllSlides} variant="default" size="sm" title="Export All Slides" className="bg-green-600 hover:bg-green-700">
+            <Download className="h-4 w-4" />
             Export All
-          </button>
+          </Button>
         </div>
       </div>
 
       {showTemplates && (
-        <div className="border-t border-gray-200 p-4 bg-gray-50">
+        <div className="border-t border-border p-4 bg-muted/50">
           <h3 className="text-sm font-semibold mb-2">Templates</h3>
           <div className="grid grid-cols-6 gap-2">
             {templates.map((template) => (
@@ -222,10 +203,10 @@ export function Toolbar() {
                   actions.addSlide(slide);
                   setShowTemplates(false);
                 }}
-                className="aspect-[9/16] border-2 border-gray-300 rounded hover:border-blue-500 text-xs p-2 flex items-center justify-center"
+                className="aspect-[9/16] border-2 border-border rounded hover:border-primary text-xs p-2 flex items-center justify-center transition-colors"
                 style={{ backgroundColor: template.slide.backgroundColor }}
               >
-                <span className="text-gray-500 opacity-75">{template.name}</span>
+                <span className="text-muted-foreground opacity-75">{template.name}</span>
               </button>
             ))}
           </div>
@@ -233,50 +214,60 @@ export function Toolbar() {
       )}
 
       {selectedLayer && (
-        <div className="border-t border-gray-200 px-4 py-2 bg-gray-50">
+        <div className="border-t border-border px-4 py-2 bg-muted/50">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Layer Controls</span>
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => actions.reorderLayer(selectedLayer.id, 'front')}
-                className="p-1.5 bg-white hover:bg-gray-100 rounded border border-gray-300"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 title="Bring to Front"
               >
-                <FiArrowUp size={16} />
-              </button>
-              <button
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+              <Button
                 onClick={() => actions.reorderLayer(selectedLayer.id, 'forward')}
-                className="p-1.5 bg-white hover:bg-gray-100 rounded border border-gray-300"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 title="Bring Forward"
               >
-                <FiChevronUp size={16} />
-              </button>
-              <button
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              <Button
                 onClick={() => actions.reorderLayer(selectedLayer.id, 'backward')}
-                className="p-1.5 bg-white hover:bg-gray-100 rounded border border-gray-300"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 title="Send Backward"
               >
-                <FiChevronDown size={16} />
-              </button>
-              <button
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+              <Button
                 onClick={() => actions.reorderLayer(selectedLayer.id, 'back')}
-                className="p-1.5 bg-white hover:bg-gray-100 rounded border border-gray-300"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
                 title="Send to Back"
               >
-                <FiArrowDown size={16} />
-              </button>
-              <div className="w-px h-6 bg-gray-300 mx-1" />
-              <button
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              <Button
                 onClick={() => {
                   if (confirm('Delete this layer?')) {
                     actions.deleteLayer(selectedLayer.id);
                   }
                 }}
-                className="p-1.5 bg-white hover:bg-red-100 hover:text-red-600 rounded border border-gray-300"
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
                 title="Delete Layer"
               >
-                <FiTrash2 size={16} />
-              </button>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>

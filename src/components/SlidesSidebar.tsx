@@ -16,7 +16,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useEditor } from '../store/EditorContext';
 import type { Slide } from '../types';
-import { FiPlus, FiCopy, FiTrash2 } from 'react-icons/fi';
+import { Plus, Copy, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 function SortableSlideItem({ slide, index, isActive }: { slide: Slide; index: number; isActive: boolean }) {
   const { actions } = useEditor();
@@ -37,8 +38,8 @@ function SortableSlideItem({ slide, index, isActive }: { slide: Slide; index: nu
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden mb-2 ${
-        isActive ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-400'
+      className={`relative group cursor-pointer border-2 rounded-lg overflow-hidden mb-2 transition-all ${
+        isActive ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
       }`}
       {...attributes}
       {...listeners}
@@ -48,7 +49,7 @@ function SortableSlideItem({ slide, index, isActive }: { slide: Slide; index: nu
         style={{ backgroundColor: slide.backgroundColor }}
         onClick={() => actions.setCurrentSlide(index)}
       >
-        <span className="text-gray-500 opacity-50">{slide.name}</span>
+        <span className="text-muted-foreground opacity-50">{slide.name}</span>
       </div>
       <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
         <button
@@ -56,10 +57,10 @@ function SortableSlideItem({ slide, index, isActive }: { slide: Slide; index: nu
             e.stopPropagation();
             actions.duplicateSlide(index);
           }}
-          className="p-1 bg-white rounded shadow hover:bg-gray-100"
+          className="p-1 bg-card rounded shadow-sm hover:bg-accent transition-colors"
           title="Duplicate"
         >
-          <FiCopy size={12} />
+          <Copy className="h-3 w-3" />
         </button>
         <button
           onClick={(e) => {
@@ -68,13 +69,13 @@ function SortableSlideItem({ slide, index, isActive }: { slide: Slide; index: nu
               actions.deleteSlide(index);
             }
           }}
-          className="p-1 bg-white rounded shadow hover:bg-red-100 hover:text-red-600"
+          className="p-1 bg-card rounded shadow-sm hover:bg-destructive/10 hover:text-destructive transition-colors"
           title="Delete"
         >
-          <FiTrash2 size={12} />
+          <Trash2 className="h-3 w-3" />
         </button>
       </div>
-      <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-0.5 rounded">
+      <div className="absolute bottom-1 left-1 bg-background/80 backdrop-blur-sm text-foreground text-xs px-2 py-0.5 rounded border border-border">
         {index + 1}
       </div>
     </div>
@@ -104,16 +105,17 @@ export function SlidesSidebar() {
   };
 
   return (
-    <div className="w-48 bg-gray-50 border-r border-gray-200 flex flex-col">
-      <div className="p-3 border-b border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">Slides</h2>
-        <button
+    <div className="w-48 bg-card border-r border-border flex flex-col">
+      <div className="p-3 border-b border-border">
+        <h2 className="text-sm font-semibold mb-2">Slides</h2>
+        <Button
           onClick={() => actions.addSlide()}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+          className="w-full"
+          size="sm"
         >
-          <FiPlus size={16} />
+          <Plus className="h-4 w-4" />
           Add Slide
-        </button>
+        </Button>
       </div>
       <div className="flex-1 overflow-y-auto p-2">
         <DndContext

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import * as fabric from 'fabric';
+import { Canvas, IText, FabricImage } from 'fabric';
 import { useEditor } from '../store/EditorContext';
 import type { TextLayer, ImageLayer } from '../types';
 
@@ -9,7 +9,7 @@ const DISPLAY_SCALE = 0.35; // Scale for display
 
 export function CanvasEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
+  const fabricCanvasRef = useRef<Canvas | null>(null);
   const { state, actions } = useEditor();
   const [isReady, setIsReady] = useState(false);
 
@@ -19,11 +19,10 @@ export function CanvasEditor() {
   useEffect(() => {
     if (!canvasRef.current || fabricCanvasRef.current) return;
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
+    const canvas = new Canvas(canvasRef.current, {
       width: CANVAS_WIDTH,
       height: CANVAS_HEIGHT,
       backgroundColor: currentSlide.backgroundColor,
-      preserveObjectStacking: true,
     });
 
     fabricCanvasRef.current = canvas;
@@ -33,14 +32,14 @@ export function CanvasEditor() {
     canvas.on('selection:created', (e: any) => {
       if (e.selected && e.selected[0]) {
         const obj = e.selected[0];
-        actions.selectLayer(obj.data?.layerId || null);
+        actions.selectLayer((obj as any).data?.layerId || null);
       }
     });
 
     canvas.on('selection:updated', (e: any) => {
       if (e.selected && e.selected[0]) {
         const obj = e.selected[0];
-        actions.selectLayer(obj.data?.layerId || null);
+        actions.selectLayer((obj as any).data?.layerId || null);
       }
     });
 
@@ -50,9 +49,9 @@ export function CanvasEditor() {
 
     // Handle object modifications
     canvas.on('object:modified', (e: any) => {
-      if (e.target && e.target.data?.layerId) {
+      if (e.target && (e.target as any).data?.layerId) {
         const obj = e.target;
-        actions.updateLayer(obj.data.layerId, {
+        actions.updateLayer((obj as any).data.layerId, {
           position: { x: obj.left || 0, y: obj.top || 0 },
           size: {
             width: (obj.width || 0) * (obj.scaleX || 1),
@@ -108,13 +107,13 @@ export function CanvasEditor() {
     }
   }, [currentSlide, isReady, state.selectedLayerId]);
 
-  function renderTextLayer(canvas: fabric.Canvas, layer: TextLayer) {
-    const text = new fabric.IText(layer.content, {
+  function renderTextLayer(canvas: Canvas, layer: TextLayer) {
+    const text = new IText(layer.content, {
       left: layer.position.x,
       top: layer.position.y,
       fontSize: layer.fontSize,
       fontFamily: layer.fontFamily,
-      fontWeight: layer.fontWeight,
+      fontWeight: layer.fontWeight as any,
       fill: layer.color,
       textAlign: layer.textAlign,
       angle: layer.rotation,
@@ -136,10 +135,9 @@ export function CanvasEditor() {
     });
   }
 
-  function renderImageLayer(canvas: fabric.Canvas, layer: ImageLayer) {
-    (fabric.Image as any).fromURL(
-      layer.imageUrl,
-      (img: any) => {
+  function renderImageLayer(canvas: Canvas, layer: ImageLayer) {
+    FabricImage.fromURL(layer.imageUrl, { crossOrigin: 'anonymous' })
+      .then((img) => {
         img.set({
           left: layer.position.x,
           top: layer.position.y,
@@ -152,18 +150,19 @@ export function CanvasEditor() {
           hasBorders: true,
         });
 
-        img.data = { layerId: layer.id };
+        (img as any).data = { layerId: layer.id };
         canvas.add(img);
         canvas.renderAll();
-      },
-      { crossOrigin: 'anonymous' }
-    );
+      })
+      .catch((error) => {
+        console.error('Failed to load image:', error);
+      });
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-gray-100 p-8 overflow-auto">
+    <div className="flex-1 flex items-center justify-center bg-muted p-8 overflow-auto">
       <div
-        className="bg-white shadow-2xl"
+        className="bg-card shadow-2xl rounded-lg overflow-hidden"
         style={{
           width: CANVAS_WIDTH * DISPLAY_SCALE,
           height: CANVAS_HEIGHT * DISPLAY_SCALE,

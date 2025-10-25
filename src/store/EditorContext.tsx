@@ -42,11 +42,15 @@ const createDefaultProject = (): Project => ({
   updatedAt: new Date().toISOString(),
 });
 
+const defaultProject = createDefaultProject();
 const initialState: EditorState = {
-  project: createDefaultProject(),
+  project: defaultProject,
   selectedLayerId: null,
-  history: [],
-  historyIndex: -1,
+  history: [{
+    project: JSON.parse(JSON.stringify(defaultProject)),
+    timestamp: Date.now(),
+  }],
+  historyIndex: 0,
 };
 
 const EditorContext = createContext<{
@@ -138,9 +142,24 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       const slides = [...state.project.slides];
       const [movedSlide] = slides.splice(from, 1);
       slides.splice(to, 0, movedSlide);
+
+      // Update currentSlideIndex to track the current slide after reordering
+      let newCurrentIndex = state.project.currentSlideIndex;
+      if (from === state.project.currentSlideIndex) {
+        // The current slide is being moved
+        newCurrentIndex = to;
+      } else if (from < state.project.currentSlideIndex && to >= state.project.currentSlideIndex) {
+        // A slide before current is moved to or after current position
+        newCurrentIndex--;
+      } else if (from > state.project.currentSlideIndex && to <= state.project.currentSlideIndex) {
+        // A slide after current is moved to or before current position
+        newCurrentIndex++;
+      }
+
       newState.project = {
         ...state.project,
         slides,
+        currentSlideIndex: newCurrentIndex,
         updatedAt: new Date().toISOString(),
       };
       break;

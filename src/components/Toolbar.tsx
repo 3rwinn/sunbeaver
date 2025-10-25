@@ -110,7 +110,35 @@ export function Toolbar() {
   };
 
   const exportAllSlides = async () => {
-    alert('Export all slides: Switch to each slide and export individually. Full automation coming soon!');
+    const canvas = document.querySelector('canvas');
+    if (!canvas) {
+      alert('Canvas not found!');
+      return;
+    }
+
+    const originalSlideIndex = state.project.currentSlideIndex;
+    const totalSlides = state.project.slides.length;
+
+    try {
+      for (let i = 0; i < totalSlides; i++) {
+        // Switch to the slide
+        actions.setCurrentSlide(i);
+
+        // Wait for the canvas to update (give it time to render)
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Export the slide
+        await exportSlideAsImage(canvas, state.project.slides[i], i);
+      }
+
+      alert(`Successfully exported ${totalSlides} slides!`);
+    } catch (error) {
+      console.error('Failed to export all slides:', error);
+      alert('Failed to export all slides. Please try again.');
+    } finally {
+      // Restore the original slide
+      actions.setCurrentSlide(originalSlideIndex);
+    }
   };
 
   const saveAsTemplate = () => {

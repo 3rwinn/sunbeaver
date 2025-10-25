@@ -87,6 +87,32 @@ export function CanvasEditor() {
     };
   }, [actions]);
 
+  // Handle keyboard events (Delete key)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if Delete or Backspace key is pressed
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Prevent default action for Backspace (browser back navigation)
+        e.preventDefault();
+
+        // Only delete if we have a selected layer and focus is not on an input
+        const activeElement = document.activeElement;
+        const isInputFocused = activeElement?.tagName === 'INPUT' ||
+                              activeElement?.tagName === 'TEXTAREA' ||
+                              activeElement?.getAttribute('contenteditable') === 'true';
+
+        if (state.selectedLayerId && !isInputFocused) {
+          actions.deleteLayer(state.selectedLayerId);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [state.selectedLayerId, actions]);
+
   // Update canvas background when slide background changes
   useEffect(() => {
     if (fabricCanvasRef.current) {

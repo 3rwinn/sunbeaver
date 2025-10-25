@@ -28,27 +28,39 @@ export function CanvasEditor() {
     fabricCanvasRef.current = canvas;
     setIsReady(true);
 
+    return () => {
+      canvas.dispose();
+      fabricCanvasRef.current = null;
+      setIsReady(false);
+    };
+  }, [currentSlide.backgroundColor]);
+
+  // Set up event handlers - these need to update when actions change
+  useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+
     // Handle object selection
-    canvas.on('selection:created', (e: any) => {
+    const handleSelectionCreated = (e: any) => {
       if (e.selected && e.selected[0]) {
         const obj = e.selected[0];
         actions.selectLayer((obj as any).data?.layerId || null);
       }
-    });
+    };
 
-    canvas.on('selection:updated', (e: any) => {
+    const handleSelectionUpdated = (e: any) => {
       if (e.selected && e.selected[0]) {
         const obj = e.selected[0];
         actions.selectLayer((obj as any).data?.layerId || null);
       }
-    });
+    };
 
-    canvas.on('selection:cleared', () => {
+    const handleSelectionCleared = () => {
       actions.selectLayer(null);
-    });
+    };
 
     // Handle object modifications
-    canvas.on('object:modified', (e: any) => {
+    const handleObjectModified = (e: any) => {
       if (e.target && (e.target as any).data?.layerId) {
         const obj = e.target;
         actions.updateLayer((obj as any).data.layerId, {
@@ -60,13 +72,20 @@ export function CanvasEditor() {
           rotation: obj.angle || 0,
         });
       }
-    });
+    };
+
+    canvas.on('selection:created', handleSelectionCreated);
+    canvas.on('selection:updated', handleSelectionUpdated);
+    canvas.on('selection:cleared', handleSelectionCleared);
+    canvas.on('object:modified', handleObjectModified);
 
     return () => {
-      canvas.dispose();
-      fabricCanvasRef.current = null;
+      canvas.off('selection:created', handleSelectionCreated);
+      canvas.off('selection:updated', handleSelectionUpdated);
+      canvas.off('selection:cleared', handleSelectionCleared);
+      canvas.off('object:modified', handleObjectModified);
     };
-  }, []);
+  }, [actions]);
 
   // Update canvas background when slide background changes
   useEffect(() => {
